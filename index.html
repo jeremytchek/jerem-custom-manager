@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Jerem Custom">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#0b5fff">
+  <title>Jerem Custom Manager GitHub Pages V1.0 Final FIX Paiement</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">JC</div>
+      <div>
+        <h1>Jerem Custom</h1>
+        <p>Manager V1.0 Final</p>
+      </div>
+    </div>
+    <nav>
+      <button data-tab="dashboard" class="active">Tableau</button>
+      <button data-tab="orders">Commandes</button>
+      <button data-tab="editor">Nouvelle / Modifier</button>
+      <button data-tab="waiting">En attente</button>
+      <button data-tab="production">Production</button>
+      <button data-tab="done">Terminées</button>
+      <button data-tab="payments">Paiements</button>
+      <button data-tab="stock">Stock</button>
+      <button data-tab="finance">Compta</button>
+      <button data-tab="clients">Clients</button>
+      <button data-tab="settings">Réglages</button>
+    </nav>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">Tableau de bord</h2>
+        <p>Paiement corrigé · Payé = reste 0 €</p>
+      </div>
+      <div class="top-actions">
+        <button id="newBtn">+ Commande</button>
+        <button id="exportBtn" class="ghost">Sauvegarde</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="dashboard" class="tab active">
+        <div class="kpis">
+          <div class="kpi"><b id="kOrders">0</b><span>Actives</span></div>
+          <div class="kpi"><b id="kWaiting">0</b><span>En attente</span></div>
+          <div class="kpi"><b id="kProd">0</b><span>Production</span></div>
+          <div class="kpi"><b id="kUnpaid">0</b><span>Non payées</span></div>
+          <div class="kpi"><b id="kCA">0 €</b><span>CA total</span></div>
+          <div class="kpi"><b id="kRest">0 €</b><span>À encaisser</span></div>
+        </div>
+        <div class="two">
+          <div class="panel"><h3>À traiter</h3><div id="dashTodo"></div></div>
+          <div class="panel"><h3>Livraisons proches</h3><div id="dashSoon"></div></div>
+        </div>
+      </section>
+
+      <section id="orders" class="tab">
+        <div class="panel">
+          <div class="row"><h3>Commandes actives</h3><button onclick="resetEditor();showTab('editor')">+ Nouvelle</button></div>
+          <div class="filters">
+            <input id="qOrders" placeholder="Recherche client, prénom, logo, couleur...">
+            <select id="fStatus"><option value="">Tous statuts</option><option>À faire</option><option>En production</option><option>Terminé</option><option>Livré</option><option>Payé</option></select>
+            <select id="fPriority"><option value="">Toutes priorités</option><option>Normal</option><option>Urgent</option></select>
+          </div>
+          <div id="ordersList"></div>
+        </div>
+      </section>
+
+      <section id="editor" class="tab">
+        <div class="panel">
+          <div class="row"><h3 id="editorTitle">Nouvelle commande</h3><button class="ghost" onclick="resetEditor()">Vider</button></div>
+          <input id="editId" type="hidden">
+
+          <div class="form-grid">
+            <label>N° commande<input id="number" placeholder="Automatique"></label>
+            <label>Client<input id="client"></label>
+            <label>Téléphone<input id="phone"></label>
+            <label>Email<input id="email"></label>
+            <label>Date commande<input id="created" type="date"></label>
+            <label>Date livraison<input id="delivery" type="date"></label>
+            <label>Statut<select id="status"><option>À faire</option><option>En production</option><option>Terminé</option><option>Livré</option><option>Payé</option></select></label>
+            <label>Paiement<select id="payment"><option>Non défini</option><option>Espèces</option><option>Bancontact</option><option>Virement</option><option>PayPal</option></select></label>
+            <label>Priorité<select id="priority"><option>Normal</option><option>Urgent</option></select></label>
+            <label>Acompte €<input id="deposit" type="number" step="0.01" value="0"></label>
+            <label>Coût €<input id="cost" type="number" step="0.01" value="0"></label>
+          </div>
+
+          <div class="quick">
+            <h4>Saisie rapide</h4>
+            <div class="form-grid">
+              <label>Logo à répéter<input id="quickLogo" placeholder="MAXIM'S"></label>
+              <label>Couleur logo<input id="quickLogoColor" placeholder="Blanc"></label>
+              <label>Placement<input id="quickPlacement" placeholder="Dos + cœur"></label>
+              <label>Prix €<input id="quickPrice" type="number" step="0.01" value="0"></label>
+            </div>
+            <button class="ghost" id="applyQuick">Appliquer à tous les articles</button>
+          </div>
+
+          <h4>Articles</h4>
+          <div id="items"></div>
+          <button class="ghost" id="addItem">+ Ajouter article</button>
+
+          <label>Notes<textarea id="notes"></textarea></label>
+          <label>Photo<input id="photo" type="file" accept="image/*"></label>
+          <div id="photoPreview"></div>
+
+          <div class="total">Total : <b id="total">0 €</b> · Bénéfice : <b id="profit">0 €</b></div>
+
+          <div class="actions">
+            <button id="saveOrder">Enregistrer</button>
+            <button class="ghost" id="duplicate">Dupliquer</button>
+            <button class="wait" id="sendWaiting">Mettre en attente</button>
+            <button class="ghost" id="archive">Archiver</button>
+            <button class="danger" id="deleteOrder">Supprimer</button>
+          </div>
+          <div id="history"></div>
+        </div>
+      </section>
+
+      <section id="waiting" class="tab">
+        <div class="panel"><h3>En attente client</h3><input id="qWaiting" placeholder="Recherche..."><div id="waitingList"></div></div>
+      </section>
+
+      <section id="production" class="tab">
+        <div class="panel">
+          <h3>Production par commande</h3>
+          <p class="muted">Une seule commande affichée. Rien n’est mélangé avec les autres productions.</p>
+          <div class="form-grid"><label>Commande<select id="prodSelect"></select></label></div>
+          <div class="actions"><button id="openProd">Ouvrir production</button><button class="ghost" onclick="printCurrentProduction()">Imprimer production</button></div>
+          <div id="prodView"></div>
+        </div>
+      </section>
+
+      <section id="done" class="tab">
+        <div class="panel"><h3>Production terminée / Archives</h3><input id="qDone" placeholder="Recherche..."><div id="doneList"></div></div>
+      </section>
+
+      <section id="payments" class="tab">
+        <div class="panel">
+          <h3>Paiements</h3>
+          <div class="pay-switch"><button id="btnUnpaid" class="active">Non payées</button><button id="btnPaid">Payées</button></div>
+          <div id="paymentsList"></div>
+        </div>
+      </section>
+
+      <section id="stock" class="tab">
+        <div class="panel">
+          <h3>Stock</h3>
+          <div class="form-grid">
+            <label>Nom<input id="stockName"></label>
+            <label>Type<select id="stockType"><option>Textile</option><option>HTV</option><option>Emballage</option><option>Autre</option></select></label>
+            <label>Quantité<input id="stockQty" type="number" step="0.01" value="1"></label>
+            <label>Seuil<input id="stockMin" type="number" step="0.01" value="2"></label>
+          </div>
+          <button id="addStock">Ajouter</button>
+          <div id="stockList"></div>
+        </div>
+      </section>
+
+      <section id="finance" class="tab"><div class="panel"><h3>Comptabilité</h3><div id="financeView"></div></div></section>
+      <section id="clients" class="tab"><div class="panel"><h3>Clients</h3><input id="qClients" placeholder="Recherche client..."><div id="clientsList"></div></div></section>
+
+      <section id="settings" class="tab">
+        <div class="panel">
+          <h3>Réglages / Sauvegarde</h3>
+          <div class="form-grid">
+            <label>Entreprise<input id="setBusiness"></label>
+            <label>Description<input id="setDesc"></label>
+            <label>Téléphone<input id="setPhone"></label>
+            <label>Email<input id="setEmail"></label>
+          </div>
+          <div class="actions">
+            <button id="saveSettings">Enregistrer</button>
+            <button id="exportData" class="ghost">Exporter sauvegarde</button>
+            <button id="clearData" class="danger">Réinitialiser</button>
+          </div>
+          <label>Importer sauvegarde<input id="importData" type="file" accept="application/json"></label>
+          <div id="dataState"></div>
+        </div>
+      </section>
+    </main>
+  </section>
+</div>
+
+<div id="docModal" class="modal">
+  <div class="modal-inner">
+    <div id="docContent"></div>
+    <div class="actions">
+      <button onclick="setDoc('production')">Bon production</button>
+      <button onclick="setDoc('quote')">Devis</button>
+      <button onclick="setDoc('invoice')">Facture</button>
+      <button onclick="setDoc('label')">Étiquette</button>
+      <button onclick="printDoc()">Imprimer / PDF</button>
+      <button class="ghost" onclick="closeDoc()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script src="initial-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
