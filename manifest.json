@@ -1,12 +1,1 @@
-{
-  "name": "Jerem Custom Manager",
-  "short_name": "Jerem Custom",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#eef6ff",
-  "theme_color": "#0b5fff",
-  "description": "Gestion commandes Jerem Custom",
-  "icons": []
-}
+fake new
